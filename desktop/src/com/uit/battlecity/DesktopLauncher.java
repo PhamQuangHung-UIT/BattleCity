@@ -8,7 +8,7 @@ import com.uit.battlecity.BattleCity;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setForegroundFPS(60);
+		config.setForegroundFPS(30);
 		config.setTitle("Battle City");
 		new Lwjgl3Application(new BattleCity(), config);
 	}
