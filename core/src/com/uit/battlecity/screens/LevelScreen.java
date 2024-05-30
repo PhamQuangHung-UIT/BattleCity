@@ -1,5 +1,6 @@
 package com.uit.battlecity.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
@@ -24,7 +25,7 @@ public class LevelScreen implements Screen {
 
     final Sound startLevelSound = Gdx.audio.newSound(Gdx.files.internal("sfx/level_start.mp3"));
 
-    public LevelScreen(int level) {
+    public LevelScreen(Game level) {
         this.level = level;
 
         OrthographicCamera camera = new OrthographicCamera();
