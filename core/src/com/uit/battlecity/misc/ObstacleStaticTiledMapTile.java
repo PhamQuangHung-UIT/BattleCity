@@ -24,4 +24,11 @@ public class ObstacleStaticTiledMapTile extends StaticTiledMapTile implements Ob
     public ObstacleType getObstacleType() {
         return type;
     }
+
+    @Override
+    public void setObstacleType(ObstacleType type) {
+        this.type = type;
+    }
+
+
 }

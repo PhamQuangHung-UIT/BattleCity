@@ -7,6 +7,6 @@ public class BattleCity extends Game {
 
 	@Override
 	public void create() {
-		setScreen(new LevelScreen(1));
+		setScreen(new LevelScreen(3, false));
 	}
 }

@@ -17,4 +17,9 @@ public class ObstacleAnimatedTiledMapTile extends AnimatedTiledMapTile implement
     public ObstacleType getObstacleType() {
         return type;
     }
+
+    @Override
+    public void setObstacleType(ObstacleType type) {
+        this.type = type;
+    }
 }
