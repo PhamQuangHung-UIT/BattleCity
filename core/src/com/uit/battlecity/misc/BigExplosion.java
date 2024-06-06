@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
 import com.uit.battlecity.utils.GameConstants;
 import com.uit.battlecity.utils.Point;
+import com.uit.battlecity.utils.SoundManager;
 
 public class BigExplosion extends Actor {
     private static final Array<Sprite> spriteArr = new Array<>();
@@ -22,7 +23,13 @@ public class BigExplosion extends Actor {
         this.position = position;
         time = 0;
         if (spriteArr.isEmpty()) {
-            FileHandle handle = Gdx.files.internal("miscellaneous/explode/big/");
+            FileHandle handle = Gdx.files.internal("miscellaneous/explode/small/");
+            for (FileHandle file : handle.list()) {
+                Sprite sprite = new Sprite(new Texture(file));
+                sprite.scale(1.5f);
+                spriteArr.add(sprite);
+            }
+            handle = Gdx.files.internal("miscellaneous/explode/big/");
             for (FileHandle file : handle.list()) {
                 Sprite sprite = new Sprite(new Texture(file));
                 sprite.scale(1.5f);

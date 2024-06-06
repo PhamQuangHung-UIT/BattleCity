@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
-import com.uit.battlecity.enums.ObstacleType;
 import com.uit.battlecity.utils.GameConstants;
 import com.uit.battlecity.utils.Point;
 
@@ -19,7 +18,7 @@ public class SmallExplosion extends Actor {
     private float time = 0;
     private Point position;
 
-    public void initialize(Point position, ObstacleType obstacleType) {
+    public void initialize(Point position) {
         this.position = position;
         time = 0;
         if (spriteArr.isEmpty()) {
@@ -30,14 +29,6 @@ public class SmallExplosion extends Actor {
                 spriteArr.add(sprite);
             }
             animation = new Animation<>(GameConstants.EXPlODE_DURATION / spriteArr.size, spriteArr);
-        }
-        switch (obstacleType) {
-            case BRICK:
-                SoundManager.BRICK_HIT.play();
-                break;
-            case STEEL:
-                SoundManager.SHIELD_HIT.play();
-                break;
         }
     }
 

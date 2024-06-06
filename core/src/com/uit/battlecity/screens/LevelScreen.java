@@ -2,18 +2,29 @@ package com.uit.battlecity.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.uit.battlecity.misc.*;
+import com.uit.battlecity.BattleCity;
+import com.uit.battlecity.misc.GameOverTitle;
+import com.uit.battlecity.misc.LevelMap;
+import com.uit.battlecity.misc.LevelStage;
+import com.uit.battlecity.misc.PlayerDetail;
 import com.uit.battlecity.utils.GameConstants;
 import com.uit.battlecity.utils.Point;
 import com.uit.battlecity.utils.PointInt;
+import com.uit.battlecity.utils.SoundManager;
+
+import static com.uit.battlecity.utils.GameConstants.SCALE;
 
 public class LevelScreen implements Screen {
     static LevelScreen instance;
@@ -27,13 +38,12 @@ public class LevelScreen implements Screen {
 
     LevelMap levelMap;
 
-    LevelBoard levelBoard;
-
     OrthogonalTiledMapRenderer mapRenderer;
+    private GameOverTitle gameOverTitle;
+    private boolean isPaused = false;
+    private Sprite pauseSprite = new Sprite(new Texture("ui/pause.png"));
 
-    private float time;
-
-    public LevelScreen(int level, boolean isTwoPlayer) {
+    public LevelScreen(Array<PlayerDetail> players, int level, boolean isTwoPlayer) {
         this.level = level;
         instance = this;
 
@@ -45,12 +55,14 @@ public class LevelScreen implements Screen {
 
         // Load the tile map and map renderer
         levelMap = new LevelMap(level);
-        mapRenderer = new OrthogonalTiledMapRenderer(levelMap.getMap(), batch);
+        mapRenderer = new OrthogonalTiledMapRenderer(levelMap.getMap(), GameConstants.SCALE, batch);
         mapRenderer.setView(camera);
 
-        levelBoard = new LevelBoard(level, isTwoPlayer);
+        // Set up the pause sprite
+        pauseSprite.setScale(SCALE);
+        pauseSprite.setCenter(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f);
 
-        stage = new LevelStage(isTwoPlayer, new ScreenViewport(camera), batch);
+        stage = new LevelStage(level, players, isTwoPlayer, new ScreenViewport(camera), batch);
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -65,16 +77,9 @@ public class LevelScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        time += delta;
-
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-
-        // Draw the level board, block and ice layers
-        batch.begin();
-        levelBoard.draw(batch);
-//        mapRenderer.renderTileLayer((TiledMapTileLayer) levelMap.getMap().getLayers().get("block"));
-//        mapRenderer.renderTileLayer((TiledMapTileLayer) levelMap.getMap().getLayers().get("ice"));
-        batch.end();
+        // Clear the screen
+        ScreenUtils.clear(Color.BLACK);
+        // Draw the level block and ice layers
         mapRenderer.render();
 
         // Draw stage and its actors
@@ -83,8 +88,17 @@ public class LevelScreen implements Screen {
 
         // Draw the bush layer
         batch.begin();
-        mapRenderer.renderTileLayer((TiledMapTileLayer) levelMap.getMap().getLayers().get("bush"));
+        mapRenderer.renderTileLayer((TiledMapTileLayer) levelMap.getBushMap().getLayers().get(0));
         batch.end();
+
+        if (gameOverTitle != null) {
+            gameOverTitle.draw(batch, delta);
+        }
+        if (isPaused) {
+            batch.begin();
+            pauseSprite.draw(batch);
+            batch.end();
+        }
     }
 
     @Override
@@ -94,7 +108,7 @@ public class LevelScreen implements Screen {
 
     @Override
     public void pause() {
-
+        isPaused = !isPaused;
     }
 
     @Override
@@ -110,11 +124,8 @@ public class LevelScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
-        levelBoard.dispose();
-    }
-
-    public float getTime() {
-        return time;
+        mapRenderer.dispose();
+        Gdx.input.setInputProcessor(null);
     }
 
     public PointInt screenToCellPos(Point screenPos) {
@@ -129,5 +140,17 @@ public class LevelScreen implements Screen {
 
     public LevelMap getLevelMap() {
         return levelMap;
+    }
+
+    public void showGameOverTitle() {
+        gameOverTitle = new GameOverTitle(() -> {
+            BattleCity.getInstance().setScreen(new GameOverScreen());
+            dispose();
+        });
+    }
+
+    public void goToTheNextLevel(Array<PlayerDetail> playerDetails, int level, boolean isTwoPlayer) {
+        dispose();
+        BattleCity.getInstance().setScreen(new LevelScreen(playerDetails, level, isTwoPlayer));
     }
 }

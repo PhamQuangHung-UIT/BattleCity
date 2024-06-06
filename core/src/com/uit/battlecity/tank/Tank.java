@@ -15,53 +15,61 @@ import com.uit.battlecity.enums.ObstacleType;
 import com.uit.battlecity.events.MoveEvent;
 import com.uit.battlecity.events.ShootEvent;
 import com.uit.battlecity.events.TankEvent;
-import com.uit.battlecity.utils.GameConstants;
+import com.uit.battlecity.interfaces.Obstacle;
+import com.uit.battlecity.misc.BigExplosion;
+import com.uit.battlecity.misc.Bullet;
+import com.uit.battlecity.misc.CollisionDetection;
 import com.uit.battlecity.misc.LevelStage;
-import com.uit.battlecity.misc.Obstacle;
 import com.uit.battlecity.screens.LevelScreen;
-import com.uit.battlecity.utils.MathUtils;
-import com.uit.battlecity.utils.Point;
-import com.uit.battlecity.utils.PointInt;
+import com.uit.battlecity.utils.*;
+
+import static com.uit.battlecity.utils.GameConstants.SCALE;
 
 // Base implement for tank (enemy & player)
 public abstract class Tank extends Actor implements EventListener {
-    public static final int PLAYER = 0;
-    public static final int ENEMY = 1;
-    Point tankPos;
-    int owner;
-    private float speed;
-    private int health;
+    protected Point tankPos;
+    protected float speed;
+    protected int health;
     private Animation<Sprite> tankSpriteAnim;
     private Sprite currentTankSprite;
-    private Rectangle bound;
-    private Direction dir = null;
-    private boolean isTankMoving = true;
+    private final Rectangle bound = new Rectangle();
+    protected boolean isTankMoving = true;
+    protected Direction dir;
+    protected float bulletSpeedRatio = 1.0f;
 
-    public Tank(int owner, int health, Direction startDir, float posX, float posY, float speed) {
+    public Tank(Array<Sprite> tankSpriteArr, int health, Direction startDir, float posX, float posY, float speed) {
         this.speed = speed;
         this.health = health;
-        this.dir = startDir;
         tankPos = new Point(posX, posY);
+        setTankSpriteAnim(tankSpriteArr, startDir);
     }
 
-    @Override
-    public void act(float delta) {
-        LevelStage stage = (LevelStage) getStage();
-        if (!stage.isPaused() && isTankMoving) {
-            currentTankSprite = tankSpriteAnim.getKeyFrame(stage.getTime(), true);
-            isTankMoving = false;
+    public void setTankSpriteAnim(Array<Sprite> tankSpriteArr, Direction startDir) {
+        tankSpriteAnim = new Animation<>(GameConstants.TANK_ANIM_DURATION, tankSpriteArr);
+        switch (startDir) {
+            case UP:
+                setMoveUpAnimation();
+                break;
+            case DOWN:
+                setMoveDownAnimation();
+                break;
+            case LEFT:
+                setMoveLeftAnimation();
+                break;
+            case RIGHT:
+                setMoveRightAnimation();
+                break;
         }
+        currentTankSprite = tankSpriteAnim.getKeyFrames()[0];
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        if (currentTankSprite != null) {
-            currentTankSprite.setScale(3);
-            currentTankSprite.setPosition(tankPos.getX() + currentTankSprite.getWidth(),
-                    tankPos.getY() + currentTankSprite.getHeight());
-            currentTankSprite.draw(batch);
-        }
+        currentTankSprite.setScale(3);
+        currentTankSprite.setPosition(tankPos.getX() + currentTankSprite.getWidth(),
+                tankPos.getY() + currentTankSprite.getHeight());
+        currentTankSprite.draw(batch);
     }
 
     @Override
@@ -70,24 +78,32 @@ public abstract class Tank extends Actor implements EventListener {
             // Check if this is movement event
             if (event instanceof MoveEvent) {
                 MoveEvent moveEvent = (MoveEvent) event;
-                isTankMoving = true;
+                LevelStage stage = (LevelStage) getStage();
+                if (!stage.isPaused()) {
+                    currentTankSprite = tankSpriteAnim.getKeyFrame(stage.getTime(), true);
+                }
                 float delta = moveEvent.getDelta();
+                isTankMoving = true;
                 PointInt cellPos;
-                Point cellScreenPos;
                 TiledMapTileLayer layer = (TiledMapTileLayer) LevelScreen.getInstance().getLevelMap().getMap().getLayers().get("block");
                 TiledMapTileLayer.Cell cell;
-                ObstacleType type;
                 switch (moveEvent.getDirection()) {
                     case UP:
                         setMoveUpAnimation();
                         tankPos.setX(MathUtils.roundFloat(tankPos.getX(), 8 * 3));
                         tankPos.setY(tankPos.getY() + speed * delta);
+                        if (CollisionDetection.getInstance().isCollidingWithOther(this, Direction.UP)) {
+                            tankPos.setY(tankPos.getY() - speed * delta);
+                            isTankMoving = false;
+                            break;
+                        }
                         cellPos = LevelScreen.getInstance().screenToCellPos(tankPos);
                         for (int i = 0; i < 2; i++) {
                             cell = layer.getCell(cellPos.getX() + i, cellPos.getY() + 2);
                             if (cell == null || ((Obstacle) cell.getTile()).getObstacleType()
                                     != ObstacleType.NONE) {
                                 tankPos.setY(tankPos.getY() - speed * delta);
+                                isTankMoving = false;
                                 break;
                             }
                         }
@@ -96,13 +112,18 @@ public abstract class Tank extends Actor implements EventListener {
                         setMoveDownAnimation();
                         tankPos.setX(MathUtils.roundFloat(tankPos.getX(), 8 * 3));
                         tankPos.setY(tankPos.getY() - speed * delta);
-
+                        if (CollisionDetection.getInstance().isCollidingWithOther(this, Direction.DOWN)) {
+                            tankPos.setY(tankPos.getY() + speed * delta);
+                            isTankMoving = false;
+                            break;
+                        }
                         cellPos = LevelScreen.getInstance().screenToCellPos(tankPos);
                         for (int i = 0; i < 2; i++) {
                             cell = layer.getCell(cellPos.getX() + i, cellPos.getY());
                             if (cell == null || ((Obstacle) cell.getTile()).getObstacleType()
                                     != ObstacleType.NONE) {
                                 tankPos.setY(tankPos.getY() + speed * delta);
+                                isTankMoving = false;
                                 break;
                             }
                         }
@@ -111,13 +132,18 @@ public abstract class Tank extends Actor implements EventListener {
                         setMoveLeftAnimation();
                         tankPos.setY(MathUtils.roundFloat(tankPos.getY(), 8 * 3));
                         tankPos.setX(tankPos.getX() - speed * delta);
-
+                        if (CollisionDetection.getInstance().isCollidingWithOther(this, Direction.LEFT)) {
+                            tankPos.setX(tankPos.getX() + speed * delta);
+                            isTankMoving = false;
+                            break;
+                        }
                         cellPos = LevelScreen.getInstance().screenToCellPos(tankPos);
                         for (int i = 0; i < 2; i++) {
                             cell = layer.getCell(cellPos.getX(), cellPos.getY() + i);
                             if (cell == null || ((Obstacle) cell.getTile()).getObstacleType()
                                     != ObstacleType.NONE) {
                                 tankPos.setX(tankPos.getX() + speed * delta);
+                                isTankMoving = false;
                                 break;
                             }
                         }
@@ -126,6 +152,11 @@ public abstract class Tank extends Actor implements EventListener {
                         setMoveRightAnimation();
                         tankPos.setY(MathUtils.roundFloat(tankPos.getY(), 8 * 3));
                         tankPos.setX(tankPos.getX() + speed * delta);
+                        if (CollisionDetection.getInstance().isCollidingWithOther(this, Direction.RIGHT)) {
+                            tankPos.setX(tankPos.getX() - speed * delta);
+                            isTankMoving = false;
+                            break;
+                        }
 
                         cellPos = LevelScreen.getInstance().screenToCellPos(tankPos);
                         for (int i = 0; i < 2; i++) {
@@ -133,12 +164,14 @@ public abstract class Tank extends Actor implements EventListener {
                             if (cell == null || ((Obstacle) cell.getTile()).getObstacleType()
                                     != ObstacleType.NONE) {
                                 tankPos.setX(tankPos.getX() - speed * delta);
+                                isTankMoving = false;
                                 break;
                             }
                         }
                         break;
                 }
             } else if (event instanceof ShootEvent) {
+                // Generate the bullet
                 Bullet bullet = getBullet((ShootEvent) event);
                 getStage().addActor(bullet);
             }
@@ -166,8 +199,8 @@ public abstract class Tank extends Actor implements EventListener {
         bulletPos.setX(bulletPos.getX() + tankPos.getX());
         bulletPos.setY(bulletPos.getY() + tankPos.getY());
         Bullet bullet = Pools.obtain(Bullet.class);
-        bullet.initialize(owner, bulletPos, dir,
-                GameConstants.BULLET_SPEED,
+        bullet.initialize(this, bulletPos, dir,
+                GameConstants.BULLET_SPEED * bulletSpeedRatio,
                 event.getDamage(),
                 event.canDestroySteel());
         return bullet;
@@ -221,28 +254,8 @@ public abstract class Tank extends Actor implements EventListener {
         }
     }
 
-    public void setTankSpriteAnim(Array<Sprite> tankSpriteArr) {
-        tankSpriteAnim = new Animation<>(GameConstants.TANK_ANIM_DURATION, tankSpriteArr);
-        Direction oldDir = dir;
-        dir = null;
-        switch (oldDir) {
-            case UP:
-                setMoveUpAnimation();
-                break;
-            case DOWN:
-                setMoveDownAnimation();
-                break;
-            case LEFT:
-                setMoveLeftAnimation();
-                break;
-            case RIGHT:
-                setMoveRightAnimation();
-                break;
-        }
-    }
-
     public Rectangle getBound() {
-        bound.set(tankPos.getX(), tankPos.getY(), currentTankSprite.getWidth(), currentTankSprite.getHeight());
+        bound.set(tankPos.getX(), tankPos.getY(), currentTankSprite.getWidth() * SCALE, currentTankSprite.getHeight() * SCALE);
         return bound;
     }
 
@@ -255,4 +268,13 @@ public abstract class Tank extends Actor implements EventListener {
     }
 
     public abstract void getHit(int damage);
+
+    public void destroy() {
+        System.out.println(this + " destroyed");
+        BigExplosion explosion = Pools.obtain(BigExplosion.class);
+        explosion.initialize(new Point(tankPos.getX() + 8 * SCALE, tankPos.getY() + 8 * SCALE));
+        getStage().addActor(explosion);
+        SoundManager.TANK_EXPLOSION.play();
+        remove();
+    }
 }

@@ -1,23 +1,14 @@
 package com.uit.battlecity.events;
 
 public class ShootEvent extends TankEvent {
-    private final float speed;
 
     private final boolean destroySteel;
 
     private final int damage;
 
-    public ShootEvent(int damage, float speed, boolean canDestroySteel) {
-        this.speed = speed;
+    public ShootEvent(int damage, boolean canDestroySteel) {
         this.damage = damage;
         this.destroySteel = canDestroySteel;
-    }
-
-    /** Get the current bullet speed
-     * @return The current bullet's speed
-     */
-    public float getSpeed() {
-        return speed;
     }
 
     /** The ability of the bullet to destroy steel wall
