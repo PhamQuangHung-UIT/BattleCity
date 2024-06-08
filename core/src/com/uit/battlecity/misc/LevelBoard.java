@@ -1,12 +1,12 @@
 package com.uit.battlecity.misc;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
+import com.uit.battlecity.utils.ImportUtils;
 import com.uit.battlecity.utils.Point;
 
 import static com.uit.battlecity.utils.GameConstants.SCALE;
@@ -32,8 +32,7 @@ public class LevelBoard extends Actor {
         this.level = level;
         this.isTwoPlayer = isTwoPlayer;
         remainingEnemies = enemyCount;
-        FileHandle handle = Gdx.files.internal("ui/numbers/");
-        for (FileHandle fh : handle.list()) {
+        for (FileHandle fh : ImportUtils.list("ui/numbers")) {
             Sprite digit = new Sprite(new Texture(fh));
             digit.setOrigin(0, 0);
             digit.setScale(SCALE);

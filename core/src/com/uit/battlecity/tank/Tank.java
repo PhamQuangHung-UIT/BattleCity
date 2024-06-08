@@ -210,11 +210,11 @@ public abstract class Tank extends Actor implements EventListener {
      * Use for implement custom move-up tank texture
      */
     protected void setMoveUpAnimation() {
-        if (getDir() != Direction.UP) {
+        if (dir != Direction.UP) {
             for (Sprite frame : tankSpriteAnim.getKeyFrames()) {
                 frame.setRotation(0);
             }
-            setDir(Direction.UP);
+            dir = Direction.UP;
         }
     }
 
@@ -257,14 +257,6 @@ public abstract class Tank extends Actor implements EventListener {
     public Rectangle getBound() {
         bound.set(tankPos.getX(), tankPos.getY(), currentTankSprite.getWidth() * SCALE, currentTankSprite.getHeight() * SCALE);
         return bound;
-    }
-
-    public Direction getDir() {
-        return dir;
-    }
-
-    public void setDir(Direction dir) {
-        this.dir = dir;
     }
 
     public abstract void getHit(int damage);

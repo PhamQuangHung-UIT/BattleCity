@@ -9,10 +9,10 @@ import static com.uit.battlecity.utils.GameConstants.MAX_SHIELD_TIME;
 
 
 public class ShieldPowerUp extends PowerUp {
-    public final Texture grenadeTexture = new Texture("miscellaneous/power_up/shield.png");
+    public final Texture texture = new Texture("miscellaneous/power_up/shield.png");
 
     public ShieldPowerUp(Point position) {
-        create(position, grenadeTexture);
+        create(position, texture);
     }
 
     @Override

@@ -9,10 +9,10 @@ import com.uit.battlecity.utils.SoundManager;
 
 
 public class GrenadePowerUp extends PowerUp {
-    public final Texture grenadeTexture = new Texture("miscellaneous/power_up/grenade.png");
+    public final Texture texture = new Texture("miscellaneous/power_up/grenade.png");
 
     public GrenadePowerUp(Point position) {
-        create(position, grenadeTexture);
+        create(position, texture);
     }
 
     @Override

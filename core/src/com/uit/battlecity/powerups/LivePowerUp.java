@@ -8,10 +8,10 @@ import com.uit.battlecity.utils.SoundManager;
 
 
 public class LivePowerUp extends PowerUp {
-    public final Texture grenadeTexture = new Texture("miscellaneous/power_up/live.png");
+    public final Texture texture = new Texture("miscellaneous/power_up/live.png");
 
     public LivePowerUp(Point position) {
-        create(position, grenadeTexture);
+        create(position, texture);
     }
 
     @Override

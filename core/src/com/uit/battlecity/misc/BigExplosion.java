@@ -1,6 +1,5 @@
 package com.uit.battlecity.misc;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -10,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
 import com.uit.battlecity.utils.GameConstants;
+import com.uit.battlecity.utils.ImportUtils;
 import com.uit.battlecity.utils.Point;
 import com.uit.battlecity.utils.SoundManager;
 
@@ -23,14 +23,12 @@ public class BigExplosion extends Actor {
         this.position = position;
         time = 0;
         if (spriteArr.isEmpty()) {
-            FileHandle handle = Gdx.files.internal("miscellaneous/explode/small/");
-            for (FileHandle file : handle.list()) {
+            for (FileHandle file : ImportUtils.list("miscellaneous/explode/small")) {
                 Sprite sprite = new Sprite(new Texture(file));
                 sprite.scale(1.5f);
                 spriteArr.add(sprite);
             }
-            handle = Gdx.files.internal("miscellaneous/explode/big/");
-            for (FileHandle file : handle.list()) {
+            for (FileHandle file : ImportUtils.list("miscellaneous/explode/big")) {
                 Sprite sprite = new Sprite(new Texture(file));
                 sprite.scale(1.5f);
                 spriteArr.add(sprite);

@@ -25,11 +25,11 @@ public class ShovelPowerUp extends PowerUp {
             new PointInt(16, 2),
             new PointInt(16, 1),
     };
-    public final Texture shovelTexture = new Texture("miscellaneous/power_up/shovel.png");
+    public final Texture texture = new Texture("miscellaneous/power_up/shovel.png");
     private Task currentTask;
 
     public ShovelPowerUp(Point position) {
-        create(position, shovelTexture);
+        create(position, texture);
     }
 
     @Override

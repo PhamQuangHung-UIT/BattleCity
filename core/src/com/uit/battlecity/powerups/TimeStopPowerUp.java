@@ -10,11 +10,11 @@ import com.uit.battlecity.utils.SoundManager;
 
 
 public class TimeStopPowerUp extends PowerUp {
-    public final Texture timeStopTexture = new Texture("miscellaneous/power_up/time.png");
+    public final Texture texture = new Texture("miscellaneous/power_up/time.png");
     private static Timer.Task currentTask;
 
     public TimeStopPowerUp(Point position) {
-        create(position, timeStopTexture);
+        create(position, texture);
     }
 
     @Override

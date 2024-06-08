@@ -24,10 +24,10 @@ public abstract class Player extends Tank {
     Array<Array<Sprite>> tankAnimationArr;
     private final Animation<Sprite> shieldAnim;
     private final int[] damagePerLevel = new int[]{1, 1, 4};
-    private final int[] bulletSpeedRatioPerLevel = new int[]{1, 2, 2};
+    private final float[] bulletSpeedRatioPerLevel = new float[]{1, 2, 2};
     private float maxShieldTime;
 
-    private int tankLevel = 0;
+    private int tankLevel;
 
     boolean hasShield = false;
     float shieldTime = 0;
@@ -92,8 +92,8 @@ public abstract class Player extends Tank {
         if (tankLevel >= 3) {
             tankLevel--;
         }
-        Direction oldDir = getDir();
-        setDir(null);
+        Direction oldDir = dir;
+        dir = null;
         setTankSpriteAnim(tankAnimationArr.get(tankLevel), oldDir);
     }
 

@@ -1,6 +1,5 @@
 package com.uit.battlecity.misc;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -10,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pools;
 import com.uit.battlecity.interfaces.EffectListener;
+import com.uit.battlecity.utils.ImportUtils;
 import com.uit.battlecity.utils.Point;
 
 import static com.uit.battlecity.utils.GameConstants.SCALE;
@@ -28,8 +28,7 @@ public class SpawnSpark extends Actor {
 
         if (anim == null) {
             Array<Sprite> sprites = new Array<Sprite>();
-            FileHandle handle = Gdx.files.internal("miscellaneous/spark/");
-            for (FileHandle file : handle.list()) {
+            for (FileHandle file : ImportUtils.list("miscellaneous/spark")) {
                 Sprite sprite = new Sprite(new Texture(file));
                 sprite.setSize(sprite.getWidth() * SCALE, sprite.getHeight() * SCALE);
                 sprites.add(sprite);

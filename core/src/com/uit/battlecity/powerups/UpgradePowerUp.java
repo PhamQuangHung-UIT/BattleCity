@@ -7,10 +7,10 @@ import com.uit.battlecity.utils.SoundManager;
 
 
 public class UpgradePowerUp extends PowerUp {
-    public final Texture grenadeTexture = new Texture("miscellaneous/power_up/upgrade.png");
+    public final Texture texture = new Texture("miscellaneous/power_up/upgrade.png");
 
     public UpgradePowerUp(Point position) {
-        create(position, grenadeTexture);
+        create(position, texture);
     }
 
     @Override
